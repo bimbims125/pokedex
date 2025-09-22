@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokémon Battle</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: linear-gradient(to bottom, #aee1f9, #63a4ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .battlefield {
+      width: 600px;
+      height: 400px;
+      background: #e6f2ff;
+      border: 3px solid #333;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pokemon {
+      position: absolute;
+      text-align: center;
+    }
+
+    .pokemon img {
+      width: 120px;
+    }
+
+    .enemy {
+      top: 40px;
+      right: 60px;
+    }
+
+    .player {
+      bottom: 40px;
+      left: 60px;
+    }
+
+    .status-box {
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 5px 10px;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .hp-bar {
+      width: 150px;
+      height: 15px;
+      background: #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .hp {
+      height: 100%;
+      background: #4caf50;
+      width: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: #ffcc00;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .controls button:hover {
+      background: #ffdb4d;
+    }
+  </style>
+</head>
+<body>
+  <div class="battlefield">
+    <!-- Enemy -->
+    <div class="pokemon enemy">
+      <div class="status-box">
+        <span id="enemy-name"></span><br>
+        HP: <span id="enemy-hp-text">100</span>
+        <div class="hp-bar">
+          <div class="hp" id="enemy-hp"></div>
+        </div>
+      </div>
+      <img src="https://img.pokemondb.net/sprites/red-blue/normal/pikachu.png">
+    </div>
+
+    <!-- Player -->
+    <div class="pokemon player">
+      <div class="status-box">
+        <span id="player-name"></span><br>
+        HP: <span id="player-hp-text">100</span>
+        <div class="hp-bar">
+          <div class="hp" id="player-hp"></div>
+        </div>
+      </div>
+      <img src="https://img.pokemondb.net/sprites/red-blue/back/normal/charmander.png">
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="attackEnemy()">Attack</button>
+    <button onclick="healPlayer()">Heal</button>
+  </div>
+
+  <script>
+    class Pokemon {
+      constructor(name, sprite, hp, atk){
+        this.name = name;
+        this.sprite = sprite;
+        this.hp = hp;
+        this.maxHp = hp; // Store the original HP as max HP
+        this.atk = atk;
+      }
+    }
+
+    function fetchPokemon(nameOrId) {
+      return fetch(`https://pokeapi.co/api/v2/pokemon/${nameOrId}`)
+        .then(response => response.json())
+        .then(data => new Pokemon(
+          data.name,
+          data.sprites.front_default,
+          data.stats.find(stat => stat.stat.name === 'hp').base_stat,
+          data.stats.find(stat => stat.stat.name === 'attack').base_stat
+        ));
+    }
+
+    function updateUI() {
+      // Calculate HP percentage based on max HP
+      const playerHpPercent = (player.hp / player.maxHp) * 100;
+      const enemyHpPercent = (enemy.hp / enemy.maxHp) * 100;
+
+      document.getElementById("player-name").textContent = player.name.charAt(0).toUpperCase() + player.name.slice(1);
+      document.getElementById("enemy-name").textContent = enemy.name.charAt(0).toUpperCase() + enemy.name.slice(1);
+      document.getElementById("player-hp").style.width = playerHpPercent + "%";
+      document.getElementById("enemy-hp").style.width = enemyHpPercent + "%";
+      document.getElementById("player-hp-text").textContent = player.hp;
+      document.getElementById("enemy-hp-text").textContent = enemy.hp;
+    }
+
+    function attackEnemy() {
+      alert('Attack! ' + player.atk);
+      enemy.hp = Math.max(0, enemy.hp - player.atk);
+      updateUI();
+      setTimeout(() => {
+        if (enemy.hp > 0) {
+          player.hp = Math.max(0, player.hp - enemy.atk);
+          updateUI();
+          if (player.hp === 0) {
+            alert(`${player.name} fainted! You lose!`);
+          }
+        } else {
+          alert(`${enemy.name} fainted! You win!`);
+          window.location.reload();
+        }
+      }, 500);
+    }
+
+    function healPlayer() {
+      player.hp = Math.min(player.maxHp, player.hp + 15);
+      updateUI();
+    }
+
+    // Declare the variables
+    let player, enemy;
+
+    // Load both Pokemon
+    fetchPokemon('cobalion').then(p => {
+      player = p;
+      document.querySelector('.player img').src = player.sprite;
+      // Only update UI if both Pokemon are loaded
+      if (enemy) updateUI();
+    });
+
+    fetchPokemon('virizion').then(p => {
+      enemy = p;
+      document.querySelector('.enemy img').src = enemy.sprite;
+      // Only update UI if both Pokemon are loaded
+      if (player) updateUI();
+    });
+  </script>
+</body>
+</html>
