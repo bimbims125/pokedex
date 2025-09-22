@@ -1,4 +1,5 @@
 let currentPokemon = 1;
+let searchError = false;
 const pokemonCache = {};
 const totalPokemon = 1010; // Total number of Pokemon available in PokeAPI
 
@@ -51,7 +52,8 @@ async function fetchPokemonData(pokemonId) {
       speed: data.stats.find(stat => stat.stat.name === 'speed').base_stat,
       height: data.height / 10, // Convert to meters
       weight: data.weight / 10, // Convert to kg
-      abilities: data.abilities.map(ability => ability.ability.name)
+      abilities: data.abilities.map(ability => ability.ability.name),
+      // types: data.types.map(type => type.type.name)
     };
 
     // Cache the data
@@ -115,6 +117,8 @@ async function searchPokemon() {
   const input = document.getElementById('searchInput').value.toLowerCase().trim();
 
   if (!input) {
+    searchError = true;
+    document.getElementById('btnC').disabled = true; // Disable shiny button
     showError('Please enter a Pokemon name or number');
     return;
   }
@@ -129,6 +133,8 @@ async function searchPokemon() {
 
     const pokemonData = await fetchPokemonData(pokemonId);
     displayPokemon(pokemonData);
+    document.getElementById('btnC').disabled = false; // Enable shiny button
+    searchError = false;
     currentPokemon = pokemonData.id;
 
   } catch (error) {
@@ -186,6 +192,7 @@ async function randomPokemon() {
     // Add search animation effect
     const sprite = document.getElementById('pokemonSprite');
     sprite.style.animation = 'none';
+    document.getElementById('btnC').disabled = false;
     setTimeout(() => {
       sprite.style.animation = 'float 2s ease-in-out infinite';
     }, 100);
@@ -193,6 +200,29 @@ async function randomPokemon() {
   } catch (error) {
     console.error('Error loading random Pokemon:', error);
     showError(`Could not load random Pokemon #${randomId}`);
+  }
+}
+
+async function shinyPokemon() {
+  try {
+    // Fetch the current Pokemon's data to get the shiny sprite
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${currentPokemon}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch shiny sprite for Pokemon #${currentPokemon}`);
+    }
+
+    const data = await response.json();
+    const shinySprite = data.sprites.front_shiny;
+
+    // Update the sprite with the shiny version
+    const spriteElement = document.getElementById('pokemonSprite');
+    if (shinySprite) {
+      spriteElement.innerHTML = `<img src="${shinySprite}" alt="${data.name} (Shiny)" style="width: 100%; height: 100%; object-fit: contain;">`;
+    } else {
+      console.log('No shiny sprite available for this Pokemon');
+    }
+  } catch (error) {
+    console.error('Error loading shiny Pokemon:', error);
   }
 }
 
@@ -222,6 +252,7 @@ async function initializePokemon() {
     showError('Failed to load initial Pokemon. Please try refreshing the page.');
   }
 }
+
 
 // Start the app
 initializePokemon();
