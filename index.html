@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="pokedex">
+        <div class="left-side">
+            <div class="top-lights">
+                <div class="big-light"></div>
+                <div class="small-lights">
+                    <div class="small-light red"></div>
+                    <div class="small-light yellow"></div>
+                    <div class="small-light green"></div>
+                </div>
+            </div>
+
+            <div class="main-screen">
+                <div class="screen-glare"></div>
+                <div class="pokemon-display">
+                    <div class="pokemon-image" id="pokemonSprite">🔍</div>
+                    <div class="pokemon-name" id="pokemonName">SEARCH POKEMON</div>
+                    <div class="pokemon-number" id="pokemonNumber">#000</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="dpad">
+                    <div class="dpad-center"></div>
+                    <button class="dpad-btn dpad-up" onclick="navigatePokemon(-10)"></button>
+                    <button class="dpad-btn dpad-down" onclick="navigatePokemon(10)"></button>
+                    <button class="dpad-btn dpad-left" onclick="navigatePokemon(-1)"></button>
+                    <button class="dpad-btn dpad-right" onclick="navigatePokemon(1)"></button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-a" onclick="randomPokemon()"></button>
+                    <button class="action-btn btn-b" onclick="searchPokemon()"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Enter Pokemon name or number..." onkeypress="handleEnter(event)">
+            </div>
+
+            <div class="info-screen" id="infoScreen">
+                <div class="pokemon-stats">
+                    <div>Welcome to the PokeAPI Pokedex!</div>
+                    <br>
+                    <div>• Enter Pokemon name or number (1-1010)</div>
+                    <div>• Use D-pad to navigate (+/-1, +/-10)</div>
+                    <div>• Red button (A): Random Pokemon</div>
+                    <div>• Blue button (B): Search</div>
+                    <br>
+                    <div>Powered by PokeAPI.co</div>
+                    <div>All ${totalPokemon} Pokemon available!</div>
+                </div>
+            </div>
+
+            <div class="number-pad">
+                <button class="num-btn" onclick="addNumber('1')">1</button>
+                <button class="num-btn" onclick="addNumber('2')">2</button>
+                <button class="num-btn" onclick="addNumber('3')">3</button>
+                <button class="num-btn" onclick="addNumber('4')">4</button>
+                <button class="num-btn" onclick="addNumber('5')">5</button>
+                <button class="num-btn" onclick="addNumber('6')">6</button>
+                <button class="num-btn" onclick="addNumber('7')">7</button>
+                <button class="num-btn" onclick="addNumber('8')">8</button>
+                <button class="num-btn" onclick="addNumber('9')">9</button>
+                <button class="num-btn" onclick="clearInput()">CLR</button>
+                <button class="num-btn" onclick="addNumber('0')">0</button>
+                <button class="num-btn" onclick="searchPokemon()">GO</button>
+            </div>
+
+            <div class="speaker">
+                <div class="speaker-line" style="width: 100%"></div>
+                <div class="speaker-line" style="width: 90%"></div>
+                <div class="speaker-line" style="width: 80%"></div>
+                <div class="speaker-line" style="width: 90%"></div>
+                <div class="speaker-line" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+<script src="main.js"></script>
+</body>
+</html>
